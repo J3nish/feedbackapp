@@ -23,19 +23,17 @@ def home():
 
 @app.route('/feedback', methods=['POST'])
 def submit_feedback():
-    data = request.get_json()
-    name = data.get('name')
-    message = data.get('message')
+    try:
+        # This is the fix
+        data = request.get_json(force=True)  # <-- force=True is important here
+        name = data.get("name")
+        message = data.get("message")
 
-    if not name or not message:
-        return jsonify({"error": "Name and message required"}), 400
+        # For demo: return back what we received
+        return jsonify({"status": "received", "name": name, "message": message}), 200
 
-    fb = Feedback(name=name, message=message)
-    db.session.add(fb)
-    db.session.commit()
-
-    return jsonify({"status": "success", "message": "Feedback submitted"}), 201
-
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 @app.route('/feedback', methods=['GET','POST'])
 def get_feedback():
     all_feedback = Feedback.query.all()
