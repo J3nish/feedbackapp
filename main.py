@@ -22,14 +22,17 @@ def home():
     return jsonify({"message": "Feedback API is running"}), 200
 
 @app.route('/feedback', methods=['POST'])
-def submit_feedback():
+def add_feedback():
     try:
-        # This is the fix
-        data = request.get_json(force=True)  # <-- force=True is important here
+        print("Headers:", request.headers)
+        print("Content-Type:", request.content_type)
+        print("Raw Data:", request.data)
+        print("JSON:", request.get_json(force=True))
+
+        data = request.get_json(force=True)
         name = data.get("name")
         message = data.get("message")
 
-        # For demo: return back what we received
         return jsonify({"status": "received", "name": name, "message": message}), 200
 
     except Exception as e:
