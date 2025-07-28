@@ -36,7 +36,7 @@ def submit_feedback():
 
     return jsonify({"status": "success", "message": "Feedback submitted"}), 201
 
-@app.route('/feedback', methods=['GET'])
+@app.route('/feedback', methods=['GET','POST'])
 def get_feedback():
     all_feedback = Feedback.query.all()
     result = [{"id": f.id, "name": f.name, "message": f.message} for f in all_feedback]
