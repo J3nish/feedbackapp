@@ -22,7 +22,7 @@ def form():
 
         return redirect('/thankyou')
 
-    return render_template('form.html')
+    return render_template('feedback.html')
 
 @app.route('/thankyou')
 def thankyou():
