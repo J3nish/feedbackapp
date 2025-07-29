@@ -3,7 +3,7 @@ import requests
 
 app = Flask(__name__)
 
-# Paste your Logic App's trigger URL
+# Paste your Logic App's trigger URL here
 LOGIC_APP_URL = "https://prod-29.centralindia.logic.azure.com:443/workflows/e15fab1c46c64c15a8793e480aa32568/triggers/When_a_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_a_HTTP_request_is_received%2Frun&sv=1.0&sig=VnwbzzMdgjEZpZywnjd8D4hqHDlMdd13J7gTpHkg94k"
 
 @app.route('/', methods=['GET', 'POST'])
@@ -18,7 +18,11 @@ def form():
             "email": email,
             "message": message
         }
-        requests.post(LOGIC_APP_URL, json=payload)
+
+        try:
+            requests.post(LOGIC_APP_URL, json=payload)
+        except Exception as e:
+            return f"<h2>Error sending feedback: {e}</h2>"
 
         return redirect('/thankyou')
 
