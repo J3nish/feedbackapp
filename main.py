@@ -1,47 +1,32 @@
-from flask import Flask, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, request, render_template, redirect
+import requests
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///feedback.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
 
-# Model
-class Feedback(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80))
-    message = db.Column(db.Text)
+# Paste your Logic App's trigger URL
+LOGIC_APP_URL = "https://prod-29.centralindia.logic.azure.com:443/workflows/e15fab1c46c64c15a8793e480aa32568/triggers/When_a_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_a_HTTP_request_is_received%2Frun&sv=1.0&sig=VnwbzzMdgjEZpZywnjd8D4hqHDlMdd13J7gTpHkg94k"
 
-# Create DB
-with app.app_context():
-    db.create_all()
+@app.route('/', methods=['GET', 'POST'])
+def form():
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        message = request.form['message']
 
-# Routes
-@app.route('/')
-def home():
-    return jsonify({"message": "Feedback API is running"}), 200
+        payload = {
+            "name": name,
+            "email": email,
+            "message": message
+        }
+        requests.post(LOGIC_APP_URL, json=payload)
 
-@app.route('/feedback', methods=['POST'])
-def add_feedback():
-    try:
-        print("Headers:", request.headers)
-        print("Content-Type:", request.content_type)
-        print("Raw Data:", request.data)
-        print("JSON:", request.get_json(force=True))
+        return redirect('/thankyou')
 
-        data = request.get_json(force=True)
-        name = data.get("name")
-        message = data.get("message")
+    return render_template('form.html')
 
-        return jsonify({"status": "received", "name": name, "message": message}), 200
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
-@app.route('/feedback', methods=['GET','POST'])
-def get_feedback():
-    all_feedback = Feedback.query.all()
-    result = [{"id": f.id, "name": f.name, "message": f.message} for f in all_feedback]
-    return jsonify(result), 200
+@app.route('/thankyou')
+def thankyou():
+    return "<h2>Thank you for your feedback!</h2>"
 
 if __name__ == '__main__':
     app.run(debug=True)
