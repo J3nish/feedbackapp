@@ -19,8 +19,13 @@ def form():
             "message": message
         }
 
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
         try:
-            requests.post(LOGIC_APP_URL, json=payload)
+            response = requests.post(LOGIC_APP_URL, json=payload, headers=headers)
+            response.raise_for_status()  # Raises error if status code >= 400
         except Exception as e:
             return f"<h2>Error sending feedback: {e}</h2>"
 
